@@ -76,3 +76,8 @@ test("full-text search matches stemmed words in content", async () => {
 test("parseDoc rejects unknown node types", () => {
   assert.throws(() => parseDoc({ type: "doc", content: [{ type: "script", text: "alert(1)" }] }));
 });
+
+test("seed ids are fixed, so every in-memory instance agrees on note ids", async () => {
+  const note = await getNoteForUser("00000000-0000-4000-8000-100000000000", DEMO_USER_ID);
+  assert.equal(note?.title, "Groceries");
+});

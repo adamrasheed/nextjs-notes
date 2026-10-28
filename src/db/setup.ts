@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import { sql } from "drizzle-orm";
 import { db, migrate } from "@/db";
 import { notes, noteTags, tags, users } from "@/db/schema";
@@ -58,8 +57,11 @@ export async function setupDatabase() {
     .returning({ id: users.id });
   if (!created.length) return;
 
+  // Fixed ids so every serverless instance with its own in-memory DB seeds identical rows.
+  const seedId = (kind: number, n: number) => `00000000-0000-4000-8000-${kind}${String(n).padStart(11, "0")}`;
+  const tagIds = new Map<string, string>();
   for (const [i, s] of samples.entries()) {
-    const id = randomUUID();
+    const id = seedId(1, i);
     const parsed = parseDoc(s.doc);
     await db.insert(notes).values({
       id,
@@ -70,9 +72,10 @@ export async function setupDatabase() {
       updatedAt: sql`now() - make_interval(hours => ${i})`,
     });
     for (const name of s.tags) {
+      if (!tagIds.has(name)) tagIds.set(name, seedId(2, tagIds.size));
       const [tag] = await db
         .insert(tags)
-        .values({ userId: DEMO_USER_ID, name })
+        .values({ id: tagIds.get(name), userId: DEMO_USER_ID, name })
         .onConflictDoUpdate({ target: [tags.userId, tags.name], set: { name } })
         .returning({ id: tags.id });
       await db.insert(noteTags).values({ noteId: id, tagId: tag.id });
