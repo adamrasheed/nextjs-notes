@@ -52,7 +52,7 @@ The live demo on Vercel sets `PGLITE_DATA_DIR=memory://`: each serverless instan
 | Share tokens from a CSPRNG, revocable (12) | `shareNote` / `unshareNote` in `src/app/(app)/actions.ts` |
 | Rich text stored as JSON, validated against the editor schema, rendered without raw HTML (12) | `src/lib/editor.ts`, `src/app/s/[token]/page.tsx` |
 
-Two details worth knowing:
+Implementation notes:
 
 - The server validates every save with the editor's ProseMirror schema (`parseDoc`) and extracts `content_text` itself, so it never trusts client HTML or client-computed text. Links are disabled in the editor, so there are no `href` values to sanitize.
 - Aborting a fetch does not roll back the server. If an aborted save already committed, the next save gets a 409 against itself. The editor detects that case (the 409 body equals what the aborted request sent) and rebases silently instead of showing a false conflict.

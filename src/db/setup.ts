@@ -21,7 +21,7 @@ const samples = [
     title: "Design notes: autosave",
     tags: ["ideas"],
     doc: doc(
-      h("Talking points"),
+      h("Key ideas"),
       p("Optimistic concurrency control with a version column beats a write queue for lost updates."),
       p("Lazy create with a client generated UUID avoids orphan empty notes."),
     ),
